@@ -31,7 +31,7 @@ import org.whispersystems.textsecuregcm.configuration.AttachmentsConfiguration;
 import org.whispersystems.textsecuregcm.configuration.TestDeviceConfiguration;
 import org.whispersystems.textsecuregcm.configuration.TurnConfiguration;
 import org.whispersystems.textsecuregcm.configuration.TwilioConfiguration;
-import org.signal.verificationservice.api.VerificationConfiguration;
+import org.signal.verificationapi.VerificationConfiguration;
 import org.whispersystems.websocket.configuration.WebSocketConfiguration;
 
 import javax.validation.Valid;
@@ -139,6 +139,9 @@ public class WhisperServerConfiguration extends Configuration {
   @JsonProperty
   private ApnConfiguration apn;
 
+  @JsonProperty
+  private int verificationMSUsagePercent = 0;
+
   @Valid
   @NotNull
   @JsonProperty
@@ -210,6 +213,10 @@ public class WhisperServerConfiguration extends Configuration {
 
   public ProfilesConfiguration getProfilesConfiguration() {
     return profiles;
+  }
+
+  public int getVerificationMSUsagePercent() {
+    return verificationMSUsagePercent;
   }
 
   public VerificationConfiguration getVerificationMicroserviceConfiguration() {

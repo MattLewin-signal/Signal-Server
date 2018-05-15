@@ -23,7 +23,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.google.common.base.Optional;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.jetty.servlets.CrossOriginFilter;
-import org.signal.verificationservice.api.VerificationClient;
+import org.signal.verificationapi.VerificationClient;
 import org.skife.jdbi.v2.DBI;
 import org.whispersystems.dispatch.DispatchManager;
 import org.whispersystems.dropwizard.simpleauth.AuthDynamicFeature;
@@ -43,7 +43,6 @@ import org.whispersystems.textsecuregcm.controllers.KeysController;
 import org.whispersystems.textsecuregcm.controllers.MessageController;
 import org.whispersystems.textsecuregcm.controllers.ProfileController;
 import org.whispersystems.textsecuregcm.controllers.ProvisioningController;
-import org.signal.verificationservice.api.VerificationConfiguration;
 import org.whispersystems.textsecuregcm.federation.FederatedClientManager;
 import org.whispersystems.textsecuregcm.federation.FederatedPeer;
 import org.whispersystems.textsecuregcm.limits.RateLimiters;
@@ -189,7 +188,7 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
     PushSender               pushSender          = new PushSender(apnFallbackManager, gcmSender, apnSender, websocketSender, config.getPushConfiguration().getQueueSize());
     ReceiptSender            receiptSender       = new ReceiptSender(accountsManager, pushSender, federatedClientManager);
     TurnTokenGenerator       turnTokenGenerator  = new TurnTokenGenerator(config.getTurnConfiguration());
-    VerificationClient       verificationClient  = new VerificationClient.Builder(config.getVerificationMicroserviceConfiguration().getHost(), environment, config.getJerseyClientConfiguration()).build();
+    VerificationClient verificationClient  = new VerificationClient.Builder(config.getVerificationMicroserviceConfiguration().getDomain(), environment, config.getJerseyClientConfiguration()).build();
 
     messagesCache.setPubSubManager(pubSubManager, pushSender);
 
@@ -214,8 +213,7 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
                                                              .buildAuthFilter()));
     environment.jersey().register(new AuthValueFactoryProvider.Binder());
 
-    VerificationConfiguration verificationConfig = config.getVerificationMicroserviceConfiguration();
-    environment.jersey().register(new AccountController(pendingAccountsManager, accountsManager, rateLimiters, smsSender, messagesManager, turnTokenGenerator, config.getTestDevices(), verificationClient, verificationConfig.getPercentage()));
+    environment.jersey().register(new AccountController(pendingAccountsManager, accountsManager, rateLimiters, smsSender, messagesManager, turnTokenGenerator, config.getTestDevices(), verificationClient, config.getVerificationMSUsagePercent()));
 
     environment.jersey().register(new DeviceController(pendingDevicesManager, accountsManager, messagesManager, rateLimiters, config.getMaxDevices()));
     environment.jersey().register(new DirectoryController(rateLimiters, directory));
