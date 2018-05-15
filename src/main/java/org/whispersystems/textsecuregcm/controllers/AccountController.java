@@ -22,6 +22,7 @@ import com.codahale.metrics.SharedMetricRegistries;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import org.signal.verificationservice.api.VerificationClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.whispersystems.textsecuregcm.auth.AuthenticationCredentials;
@@ -65,6 +66,7 @@ import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import static com.codahale.metrics.MetricRegistry.name;
@@ -85,13 +87,18 @@ public class AccountController {
   private final TurnTokenGenerator                    turnTokenGenerator;
   private final Map<String, Integer>                  testDevices;
 
+  private final VerificationClient                    verificationClient;
+  private final int                                   verificationMicroservicePercentage;
+
   public AccountController(PendingAccountsManager pendingAccounts,
                            AccountsManager accounts,
                            RateLimiters rateLimiters,
                            SmsSender smsSenderFactory,
                            MessagesManager messagesManager,
                            TurnTokenGenerator turnTokenGenerator,
-                           Map<String, Integer> testDevices)
+                           Map<String, Integer> testDevices,
+                           VerificationClient verificationClient,
+                           int verificationMicroservicePercentage)
   {
     this.pendingAccounts    = pendingAccounts;
     this.accounts           = accounts;
@@ -100,6 +107,8 @@ public class AccountController {
     this.messagesManager    = messagesManager;
     this.testDevices        = testDevices;
     this.turnTokenGenerator = turnTokenGenerator;
+    this.verificationClient = verificationClient;
+    this.verificationMicroservicePercentage = verificationMicroservicePercentage;
   }
 
   @Timed
@@ -136,7 +145,27 @@ public class AccountController {
     if (testDevices.containsKey(number)) {
       // noop
     } else if (transport.equals("sms")) {
-      smsSender.deliverSmsVerification(number, client, verificationCode.getVerificationCodeDisplay());
+      // Fix up mexico numbers to 'mobile' format just for SMS delivery.
+      if (number.startsWith("+52") && !number.startsWith("+521")) {
+        number = "+521" + number.substring(3);
+      }
+
+      int randomNum = ThreadLocalRandom.current().nextInt(1, 101);
+      if (randomNum <= verificationMicroservicePercentage) {
+
+        // NOTE: the method below *can* return status. we are currently not checking it.
+        verificationClient.deliver(
+                verificationCode.getVerificationCode(),
+                number,
+                transport,
+                client.or("android"),
+                "US",
+                "en",
+                "310",
+                "380");
+      } else {
+        smsSender.deliverSmsVerification(number, client, verificationCode.getVerificationCodeDisplay());
+      }
     } else if (transport.equals("voice")) {
       smsSender.deliverVoxVerification(number, verificationCode.getVerificationCodeSpeech());
     }

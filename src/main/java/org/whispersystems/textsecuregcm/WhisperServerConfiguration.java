@@ -31,6 +31,7 @@ import org.whispersystems.textsecuregcm.configuration.AttachmentsConfiguration;
 import org.whispersystems.textsecuregcm.configuration.TestDeviceConfiguration;
 import org.whispersystems.textsecuregcm.configuration.TurnConfiguration;
 import org.whispersystems.textsecuregcm.configuration.TwilioConfiguration;
+import org.signal.verificationservice.api.VerificationConfiguration;
 import org.whispersystems.websocket.configuration.WebSocketConfiguration;
 
 import javax.validation.Valid;
@@ -138,6 +139,11 @@ public class WhisperServerConfiguration extends Configuration {
   @JsonProperty
   private ApnConfiguration apn;
 
+  @Valid
+  @NotNull
+  @JsonProperty
+  private VerificationConfiguration verificationMicroservice;
+
   public WebSocketConfiguration getWebSocketConfiguration() {
     return webSocket;
   }
@@ -204,6 +210,10 @@ public class WhisperServerConfiguration extends Configuration {
 
   public ProfilesConfiguration getProfilesConfiguration() {
     return profiles;
+  }
+
+  public VerificationConfiguration getVerificationMicroserviceConfiguration() {
+    return verificationMicroservice;
   }
 
   public Map<String, Integer> getTestDevices() {
