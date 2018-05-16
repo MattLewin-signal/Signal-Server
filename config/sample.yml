@@ -65,6 +65,9 @@ gcm: # GCM Configuration
   senderId:
   apiKey:
 
+verificationMicroservice: # Verification Microservice configuration (see: https://github.com/signalapp/Signal-Verification/)
+  domain: # (Required) Domain/host of your Signal Verification server
+
 logging:
   level: INFO
   appenders:
