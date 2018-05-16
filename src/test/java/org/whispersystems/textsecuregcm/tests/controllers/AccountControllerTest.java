@@ -5,6 +5,8 @@ import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.signal.verificationapi.DeliveryResult;
+import org.signal.verificationapi.VerificationClient;
 import org.whispersystems.dropwizard.simpleauth.AuthValueFactoryProvider;
 import org.whispersystems.textsecuregcm.auth.StoredVerificationCode;
 import org.whispersystems.textsecuregcm.auth.TurnTokenGenerator;
@@ -53,6 +55,8 @@ public class AccountControllerTest {
   private        TimeProvider           timeProvider           = mock(TimeProvider.class          );
   private        TurnTokenGenerator     turnTokenGenerator     = mock(TurnTokenGenerator.class);
   private        Account                senderPinAccount       = mock(Account.class);
+  private        VerificationClient     verificationClient     = mock(VerificationClient.class);
+
 
   @Rule
   public final ResourceTestRule resources = ResourceTestRule.builder()
@@ -67,7 +71,9 @@ public class AccountControllerTest {
                                                                                                smsSender,
                                                                                                storedMessages,
                                                                                                turnTokenGenerator,
-                                                                                               new HashMap<>()))
+                                                                                               new HashMap<>(),
+                                                                                               verificationClient,
+                                                                                               0))
                                                             .build();
 
 
@@ -93,6 +99,9 @@ public class AccountControllerTest {
     when(accountsManager.get(eq(SENDER_OVER_PIN))).thenReturn(Optional.of(senderPinAccount));
     when(accountsManager.get(eq(SENDER))).thenReturn(Optional.absent());
     when(accountsManager.get(eq(SENDER_OLD))).thenReturn(Optional.absent());
+
+    when(verificationClient.deliver(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(new DeliveryResult());
+    when(verificationClient.completeVerification(anyString())).thenReturn(Response.ok().build());
 
     doThrow(new RateLimitExceededException(SENDER_OVER_PIN)).when(pinLimiter).validate(eq(SENDER_OVER_PIN));
   }

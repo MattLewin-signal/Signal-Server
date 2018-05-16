@@ -225,6 +225,7 @@ public class AccountController {
       }
 
       createAccount(number, password, userAgent, accountAttributes);
+      verificationClient.completeVerification(number);
     } catch (InvalidAuthorizationHeaderException e) {
       logger.info("Bad Authorization Header", e);
       throw new WebApplicationException(Response.status(401).build());
