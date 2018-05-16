@@ -13,9 +13,6 @@ twilio: # Twilio gateway configuration
 push:
   queueSize: # Size of push pending queue
 
-redphone:
-  authKey: # Deprecated
-
 turn: # TURN server configuration
   secret: # TURN server secret
   uris:
@@ -29,6 +26,12 @@ cache: # Redis server configuration for cache cluster
 
 directory: # Redis server configuration for directory cluster
   url:
+
+messageCache: # Redis server configuration for message cache cluster
+  redis:
+    url:
+  persistDelayMinutes:
+  cacheRate:
 
 messageStore: # Postgresql database configuration for message store
   driverClass: org.postgresql.Driver
@@ -61,3 +64,11 @@ apn: # Apple Push Notifications configuration
 gcm: # GCM Configuration
   senderId:
   apiKey:
+
+logging:
+  level: INFO
+  appenders:
+  - type: console
+    threshold: ALL
+    timeZone: UTC
+    target: stdout
