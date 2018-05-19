@@ -188,7 +188,7 @@ public class WhisperServerService extends Application<WhisperServerConfiguration
     PushSender               pushSender          = new PushSender(apnFallbackManager, gcmSender, apnSender, websocketSender, config.getPushConfiguration().getQueueSize());
     ReceiptSender            receiptSender       = new ReceiptSender(accountsManager, pushSender, federatedClientManager);
     TurnTokenGenerator       turnTokenGenerator  = new TurnTokenGenerator(config.getTurnConfiguration());
-    VerificationClient verificationClient  = new VerificationClient.Builder(config.getVerificationMicroserviceConfiguration().getDomain(), environment, config.getJerseyClientConfiguration()).build();
+    VerificationClient verificationClient  = new VerificationClient.Builder(config.getVerificationMicroserviceConfiguration(), environment, config.getJerseyClientConfiguration()).build();
 
     messagesCache.setPubSubManager(pubSubManager, pushSender);
 

@@ -66,6 +66,8 @@ gcm: # GCM Configuration
   apiKey:
 
 verificationMicroservice: # Verification Microservice configuration (see: https://github.com/signalapp/Signal-Verification/)
+  key: # (Required) Pre-shared key and secret so only approved Signal Server instances can make verification requests
+  secret: # (Required)
   domain: # (Required) Domain/host of your Signal Verification server
 
 logging:
