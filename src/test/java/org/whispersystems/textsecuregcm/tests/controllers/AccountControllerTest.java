@@ -5,6 +5,8 @@ import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.signal.verificationapi.ClientOS;
+import org.signal.verificationapi.Transport;
 import org.signal.verificationapi.VerificationClient;
 import org.whispersystems.dropwizard.simpleauth.AuthValueFactoryProvider;
 import org.whispersystems.textsecuregcm.auth.StoredVerificationCode;
@@ -99,8 +101,7 @@ public class AccountControllerTest {
     when(accountsManager.get(eq(SENDER))).thenReturn(Optional.absent());
     when(accountsManager.get(eq(SENDER_OLD))).thenReturn(Optional.absent());
 
-    when(verificationClient.deliver(anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(Response.ok().build());
-    when(verificationClient.completeVerification(anyString())).thenReturn(Response.ok().build());
+    when(verificationClient.deliver(anyString(), anyString(), any(Transport.class), any(ClientOS.class), anyString(), anyString(), anyString())).thenReturn(Response.ok().build());
 
     doThrow(new RateLimitExceededException(SENDER_OVER_PIN)).when(pinLimiter).validate(eq(SENDER_OVER_PIN));
   }

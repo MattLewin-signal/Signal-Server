@@ -22,6 +22,8 @@ import com.codahale.metrics.SharedMetricRegistries;
 import com.codahale.metrics.annotation.Timed;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
+import org.signal.verificationapi.ClientOS;
+import org.signal.verificationapi.Transport;
 import org.signal.verificationapi.VerificationClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,6 +113,7 @@ public class AccountController {
     this.verificationMicroservicePercentage = verificationMicroservicePercentage;
   }
 
+  @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "RestParamTypeInspection"})
   @Timed
   @GET
   @Path("/{transport}/code/{number}")
@@ -153,14 +156,12 @@ public class AccountController {
       int randomNum = ThreadLocalRandom.current().nextInt(1, 101);
       if (randomNum <= verificationMicroservicePercentage) {
 
-        // NOTE: the method below *can* return status. we are currently not checking it.
-        verificationClient.deliver(
+        verificationClient.deliverAsync(
                 verificationCode.getVerificationCode(),
                 number,
-                transport,
-                client.or("android"),
-                "US",
-                "en",
+                Transport.valueOfIgnoringCase(transport),
+                ClientOS.valueOfIgnoringCase(client.or("android")),
+                "en-US",
                 "310",
                 "380");
       } else {
