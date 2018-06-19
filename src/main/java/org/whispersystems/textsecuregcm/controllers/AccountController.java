@@ -147,27 +147,29 @@ public class AccountController {
 
     if (testDevices.containsKey(number)) {
       // noop
-    } else if (transport.equals("sms")) {
+    } else if (ThreadLocalRandom.current().nextInt(1, 101) <= verificationMicroservicePercentage) {
       // Fix up mexico numbers to 'mobile' format just for SMS delivery.
       if (number.startsWith("+52") && !number.startsWith("+521")) {
         number = "+521" + number.substring(3);
       }
 
-      int randomNum = ThreadLocalRandom.current().nextInt(1, 101);
-      if (randomNum <= verificationMicroservicePercentage) {
+      verificationClient.deliverAsync(
+              verificationCode.getVerificationCode(),
+              number,
+              Transport.valueOfIgnoringCase(transport),
+              ClientOS.valueOfIgnoringCase(client.or("android")),
+              "en-US",
+              "310",
+              "380");
 
-        verificationClient.deliverAsync(
-                verificationCode.getVerificationCode(),
-                number,
-                Transport.valueOfIgnoringCase(transport),
-                ClientOS.valueOfIgnoringCase(client.or("android")),
-                "en-US",
-                "310",
-                "380");
-      } else {
-        smsSender.deliverSmsVerification(number, client, verificationCode.getVerificationCodeDisplay());
+    } else if (transport.equals("sms")) {
+      // Fix up mexico numbers to 'mobile' format just for SMS delivery.
+      if (number.startsWith("+52") && !number.startsWith("+521")) {
+        number = "+521" + number.substring(3);
       }
-    } else if (transport.equals("voice")) {
+      smsSender.deliverSmsVerification(number, client, verificationCode.getVerificationCodeDisplay());
+      
+    } else {
       smsSender.deliverVoxVerification(number, verificationCode.getVerificationCodeSpeech());
     }
 
